@@ -120,13 +120,18 @@ def _driver_from_config():
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
 
-     # chromium location
-    chrome_options.binary_location = shutil.which("chromium") or shutil.which("chromium-browser")
+    # Try to locate chromium
+    chrome_path = shutil.which("chromium") or shutil.which("chromium-browser")
+    if chrome_path:
+        chrome_options.binary_location = chrome_path
+    else:
+        # fallback path (common in slim images)
+        chrome_options.binary_location = "/usr/bin/chromium"
 
-    # chromedriver location
-    driver_path = shutil.which("chromedriver")
+    # Try to locate chromedriver
+    driver_path = shutil.which("chromedriver") or "/usr/bin/chromedriver"
+
     service = Service(driver_path)
-
     driver = webdriver.Chrome(service=service, options=chrome_options)
     return driver
     
